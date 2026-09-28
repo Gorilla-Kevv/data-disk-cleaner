@@ -40,6 +40,12 @@
 - 备份软件的版本快照目录
 - 数据库导出/转储（`.sql`/`.bak`/`.dump`）→ 🟡，可能是唯一备份
 
+**应用自管理缓存必须走应用自带清理通道**（详见 SKILL.md"应用级缓存清理细则"），实测案例：
+- conda `pkgs` 缓存 25.4 GB → `conda clean --all -y` 实际回收 15.8 GB（447 个 tarball + 200 个未使用解压包），已装环境不受影响
+- 网易云 `CloudMusic\storage\Cache` 11 GB 纯播放缓存，客户端内可清；同级 `无损音源`/`VipSongsDownload` 是用户资产 🔴
+- 微信 `xwechat_files` 28.9 GB：聊天图片/视频缓存，客户端内"文件管理→清理"分档清理
+- 软件多版本并存（如 `QuarkCloudDrive\7.1.7\ + 7.2.2\ + 7.3.5\`）：确认当前版本后旧版 🟡
+
 ### 5. 本盘回收站与系统目录
 
 - `<盘>:\$Recycle.Bin`：每卷独立，SHQueryRecycleBin 查询真实占用，由用户清空
@@ -65,3 +71,5 @@
 - 构建垃圾 11,913 个目录但总量仅 1.68 GB（site-packages 里的碎片 __pycache__）——垃圾目录数量多 ≠ 空间大，报告必须按总量排序
 - 最大可清项往往是：老安装包（单文件 3+ GB）、旧版本包缓存（如 conda clean 场景）、多年前的旧下载
 - 数据盘上注意 pagefile.sys/swapfile.sys：用户把虚拟内存迁到该盘后它们是正常的系统文件
+- ⚠️ **Top 目录清单有盲区**：scan-drive.ps1 的 Top 目录输出存在截断/遗漏（同次实测漏报了 SteamLibrary 102 GB、[others] 102 GB、[type-moon] 56 GB 三个最大目录）。做空间归因分析必须用 `scan-structure.ps1` 分层聚合复核，不能只信 Top 清单
+- 数据盘占用的真实构成往往是"四类"：游戏/内容库 + 聊天软件文件 + 系统文件（pagefile）+ 软件，真正的"垃圾"占比很小——报告要按这个结构归因，而不是堆一堆可删文件清单

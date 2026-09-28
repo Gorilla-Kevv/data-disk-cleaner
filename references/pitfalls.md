@@ -59,6 +59,10 @@
 部分环境对无 `-Encoding` 的 `Get-Content` 有写回风险守卫。
 解法：读文件用 `Get-Content -Encoding UTF8` 或编辑器工具。
 
+### B6. 扫描脚本的 Top 目录清单会漏报最大目录
+实测 scan 输出的 Top 目录只有 11 项，漏掉了同盘最大的 SteamLibrary（102 GB）、[others]（102 GB）、[type-moon]（56 GB）——它们带方括号/特殊字符或被输出截断。
+解法：做"空间为什么这么大"的归因分析时，必须用单遍枚举 + 目录前缀分层聚合（`scripts/scan-structure.ps1`）复核，不能只信 Top 清单就下结论。
+
 ## C. Windows 功能与软件卸载
 
 ### C1. dism 启用功能后不重启 → 卸载器无限挂死
